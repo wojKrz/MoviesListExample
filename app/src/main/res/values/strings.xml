@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">MoviesList</string>
+
+    <string name="no_more_pages">This is the end of the list</string>
+    <string name="no_more_pages_reload">Click to reload</string>
+
+    <string name="common_error">An error occurred</string>
+    <string name="paging_error_try_again">Click to try again</string>
+    <string name="data_not_up_to_date">No network connection. Data may be not up to date</string>
+
+    <string name="overview_label">Overview</string>
+    <string name="release_date">Release date</string>
+
+    <string name="network_error">Network error occurred\nplease check connection</string>
+
+    <string name="search">Search</string>
+</resources>

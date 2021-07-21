@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="pl.movies.movieslist.ui.details.MovieDetailsViewModel" />
+
+        <variable
+            name="disposables"
+            type="io.reactivex.rxjava3.disposables.CompositeDisposable" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                style="@style/MoviesList.Toolbar.Back"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ScrollView
+                android:id="@+id/contentScrollView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:visible="@{viewModel.showMainContent}">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/posterImage"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:minHeight="120dp"
+                        android:scaleType="fitStart"
+                        app:image="@{viewModel.movieDetails.posterPath}"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:src="@tools:sample/backgrounds/scenic" />
+
+                    <ImageButton
+                        android:id="@+id/favoriteToggle"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_margin="10dp"
+                        android:background="@drawable/selector_star"
+                        app:disposables="@{disposables}"
+                        app:isSelected="@{viewModel.movieDetails.favorite}"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:throttledClicks="@{() -> viewModel.toggleFavoriteStatus()}" />
+
+                    <TextView
+                        android:id="@+id/titleText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:maxLines="3"
+                        android:text="@{viewModel.movieDetails.originalTitle}"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toTopOf="@id/releaseDateText"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/posterImage"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_chainStyle="packed"
+                        tools:text="@tools:sample/lorem/random" />
+
+                    <TextView
+                        android:id="@+id/releaseDateLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/release_date"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@id/posterImage"
+                        app:layout_constraintStart_toEndOf="@id/posterImage"
+                        app:layout_constraintTop_toBottomOf="@id/titleText" />
+
+                    <TextView
+                        android:id="@+id/releaseDateText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@{viewModel.movieDetails.releaseDate}"
+                        app:layout_constraintBottom_toBottomOf="@id/releaseDateLabel"
+                        app:layout_constraintStart_toEndOf="@id/releaseDateLabel"
+                        app:layout_constraintTop_toTopOf="@id/releaseDateLabel"
+                        tools:text="@tools:sample/date/ddmmyy" />
+
+                    <androidx.constraintlayout.widget.Barrier
+                        android:id="@+id/topInfoBarrier"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:barrierDirection="bottom"
+                        app:constraint_referenced_ids="releaseDateLabel, posterImage" />
+
+                    <TextView
+                        android:id="@+id/overviewLabelText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/overview_label"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/topInfoBarrier" />
+
+                    <TextView
+                        android:id="@+id/overviewText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="@{viewModel.movieDetails.overview}"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/overviewLabelText"
+                        tools:text="@tools:sample/lorem/random" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </ScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:visible="@{viewModel.showErrorPage}"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/common_error"
+                    android:textSize="24sp" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/paging_error_try_again"
+                    app:disposables="@{disposables}"
+                    app:throttledClicks="@{() -> viewModel.fetchMovieDetails()}" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/progressContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/gray_transparent"
+                android:clickable="true"
+                app:visible="@{viewModel.progressVisible}"
+                tools:visibility="visible">
+
+                <ProgressBar
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center" />
+            </FrameLayout>
+
+        </FrameLayout>
+    </LinearLayout>
+
+</layout>

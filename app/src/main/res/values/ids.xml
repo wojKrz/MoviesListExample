@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item name="itemNowPlaying" type="id" />
+    <item name="itemLoading" type="id" />
+    <item name="itemFooterReload" type="id" />
+</resources>

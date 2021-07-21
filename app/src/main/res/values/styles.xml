@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MoviesList" />
+
+    <style name="MoviesList.Toolbar" parent="Widget.MaterialComponents.Toolbar" />
+
+    <style name="MoviesList.Toolbar.Back">
+        <item name="navigationIconTint">@color/white</item>
+        <item name="navigationIcon">@drawable/ic_baseline_arrow_back_24</item>
+    </style>
+
+</resources>
