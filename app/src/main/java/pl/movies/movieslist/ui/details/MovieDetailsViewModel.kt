@@ -2,7 +2,6 @@ package pl.movies.movieslist.ui.details
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -15,8 +14,6 @@ import pl.movies.movieslist.ui.common.list.ErrorResources
 import pl.movies.movieslist.util.SingleLiveEvent
 import pl.movies.movieslist.util.addTo
 import pl.movies.movieslist.util.isNetworkException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel

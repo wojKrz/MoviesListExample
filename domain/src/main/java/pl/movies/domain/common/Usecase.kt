@@ -7,6 +7,6 @@ interface Usecase<Args, Result> {
     fun execute(arguments: Args): Result
 }
 
-interface RxUsecase<Args, Result>: Usecase<Args, Flowable<Result>>
+interface RxUsecase<Args, Result: Any>: Usecase<Args, Flowable<Result>>
 
 interface CompletableRxUsecase<Args>: Usecase<Args, Completable>
