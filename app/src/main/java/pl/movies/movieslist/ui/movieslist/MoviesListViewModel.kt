@@ -1,115 +1,118 @@
 package pl.movies.movieslist.ui.movieslist
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import pl.movies.domain.favorite.ToggleFavoriteMovieData
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.launch
 import pl.movies.domain.favorite.ToggleFavoriteMovieStatusUsecase
 import pl.movies.domain.nowplaying.ClearMoviesListCacheUsecase
 import pl.movies.domain.nowplaying.GetPageOfNowPlayingMoviesUsecase
 import pl.movies.domain.nowplaying.MoviesNowPlayingPageState
 import pl.movies.domain.nowplaying.NowPlayingMovie
 import pl.movies.domain.paging.NewPageRequestData
+import pl.movies.movieslist.ui.movieslist.MoviesListState.ErrorState
 import pl.movies.movieslist.util.addTo
-import pl.movies.persistence.database.movies.MoviesDao
 import javax.inject.Inject
 
 @HiltViewModel
 class MoviesListViewModel @Inject constructor(
-    private val getPageOfNowPlayingMoviesUsecase: GetPageOfNowPlayingMoviesUsecase,
-    private val clearMoviesListCacheUsecase: ClearMoviesListCacheUsecase,
-    private val toggleFavoriteMovieStatusUsecase: ToggleFavoriteMovieStatusUsecase
+  private val getPageOfNowPlayingMoviesUsecase: GetPageOfNowPlayingMoviesUsecase,
+  private val clearMoviesListCacheUsecase: ClearMoviesListCacheUsecase,
+  private val toggleFavoriteMovieStatusUsecase: ToggleFavoriteMovieStatusUsecase
 ) : ViewModel() {
 
-    private val disposables: CompositeDisposable = CompositeDisposable()
+  private val disposables: CompositeDisposable = CompositeDisposable()
 
-    private val _moviesListState: MutableLiveData<MoviesListState> =
-        MutableLiveData()
+  private val moviesListState = MutableStateFlow(MoviesNowPlayingPageState())
+  private val moviesListData = MutableStateFlow<List<NowPlayingMovie>>(emptyList())
+  private val state = moviesListData.combine(moviesListState) { listData, pageState ->
+    MoviesListState.SuccessState(
+      noMoreItemsAvailable = pageState.noMoreItemsAvailable,
+      isReloading = pageState.isReloading,
+      movies = listData
+    )
+  }
 
-    val moviesListState: LiveData<MoviesListState> =
-        _moviesListState
+  private val errors = MutableSharedFlow<ErrorState>()
 
-    private val _moviesListData: MutableLiveData<List<NowPlayingMovie>> =
-        MutableLiveData()
+  val movies: Flow<MoviesListState> = merge(state, errors)
 
-    val moviesListData: LiveData<List<NowPlayingMovie>> =
-        _moviesListData
+  private var movieNameQuery = ""
 
-    private var movieNameQuery = ""
+  private var currentPage = MOVIES_FIRST_PAGE_INDEX
 
-    private var currentPage = MOVIES_FIRST_PAGE_INDEX
+  override fun onCleared() {
+    super.onCleared()
+    disposables.clear()
+  }
 
-    override fun onCleared() {
-        super.onCleared()
-        disposables.clear()
+  fun loadNextPage() {
+    getPageOfNowPlayingMoviesUsecase
+      .execute(NewPageRequestData(currentPage, movieNameQuery))
+      .subscribe(
+        ::handleNextPageLoadingState,
+        ::handleNextPageLoadingError
+      )
+      .addTo(disposables)
+  }
+
+  private fun handleNextPageLoadingState(newState: MoviesNowPlayingPageState) {
+    if (!newState.isLoading && !newState.isReloading) {
+      currentPage++
     }
 
-    fun loadNextPage() {
-        getPageOfNowPlayingMoviesUsecase
-            .execute(NewPageRequestData(currentPage, movieNameQuery))
-            .subscribe(
-                ::handleNextPageLoadingState,
-                ::handleNextPageLoadingError
-            )
-            .addTo(disposables)
+    moviesListState.value = newState
+  }
+
+  private fun handleNextPageLoadingError(throwable: Throwable) {
+    viewModelScope.launch {
+      errors.emit(ErrorState(throwable))
     }
+  }
 
-    private fun handleNextPageLoadingState(newState: MoviesNowPlayingPageState) {
-        if (!newState.isLoading && !newState.isReloading) {
-            currentPage++
-        }
+  fun refreshData() {
+    currentPage = MOVIES_FIRST_PAGE_INDEX
+    clearMoviesListCacheUsecase
+      .execute(Unit)
+      .subscribe(::loadNextPage)
+      .addTo(disposables)
+  }
 
-        val state = MoviesListState.SuccessState(
-            isReloading = newState.isReloading,
-            noMoreItemsAvailable = newState.noMoreItemsAvailable
-        )
+  fun startObservingData() {
+    getPageOfNowPlayingMoviesUsecase
+      .observeData()
+      .subscribe {
+        moviesListData.value = it
+      }.addTo(disposables)
+  }
 
-        _moviesListState.postValue(state)
+  fun searchMovies(nameQuery: String) {
+    ignoreNotChangedQuery(nameQuery) {
+      movieNameQuery = nameQuery
+      refreshData()
     }
+  }
 
-    private fun handleNextPageLoadingError(throwable: Throwable) {
-        _moviesListState.postValue(MoviesListState.ErrorState(throwable))
-    }
+  private fun ignoreNotChangedQuery(newQuery: String, onChanged: (String) -> Unit) {
+    if (movieNameQuery == newQuery)
+      return
 
-    fun refreshData() {
-        currentPage = MOVIES_FIRST_PAGE_INDEX
-        clearMoviesListCacheUsecase
-            .execute(Unit)
-            .subscribe(::loadNextPage)
-            .addTo(disposables)
-    }
+    onChanged(newQuery)
+  }
 
-    fun startObservingData() {
-        getPageOfNowPlayingMoviesUsecase
-            .observeData()
-            .subscribe {
-                _moviesListData.postValue(it)
-            }
-    }
+  fun toggleMovieFavoriteStatus(movieId: Long) {
+    toggleFavoriteMovieStatusUsecase
+      .execute(movieId)
+      .subscribe()
+  }
 
-    fun searchMovies(nameQuery: String) {
-        ignoreNotChangedQuery(nameQuery) {
-            movieNameQuery = nameQuery
-            refreshData()
-        }
-    }
-
-    private fun ignoreNotChangedQuery(newQuery: String, onChanged: (String) -> Unit) {
-        if (movieNameQuery == newQuery)
-            return
-
-        onChanged(newQuery)
-    }
-
-    fun toggleMovieFavoriteStatus(movieId: Long) {
-        toggleFavoriteMovieStatusUsecase
-            .execute(movieId)
-            .subscribe()
-    }
-
-    companion object {
-        const val MOVIES_FIRST_PAGE_INDEX = 1
-    }
+  companion object {
+    const val MOVIES_FIRST_PAGE_INDEX = 1
+  }
 }

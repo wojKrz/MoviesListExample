@@ -1,12 +1,15 @@
 package pl.movies.movieslist.ui.movieslist
 
-sealed class MoviesListState {
-    data class SuccessState(
-        val noMoreItemsAvailable: Boolean = false,
-        val isReloading: Boolean = false
-    ) : MoviesListState()
+import pl.movies.domain.nowplaying.NowPlayingMovie
 
-    data class ErrorState(
-        val throwable: Throwable
-    ) : MoviesListState()
+sealed class MoviesListState {
+  data class SuccessState(
+    val noMoreItemsAvailable: Boolean = false,
+    val isReloading: Boolean = false,
+    val movies: List<NowPlayingMovie> = emptyList()
+  ) : MoviesListState()
+
+  data class ErrorState(
+    val throwable: Throwable
+  ) : MoviesListState()
 }
