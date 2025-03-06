@@ -2,58 +2,8 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/searchInputLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/search"
-                    android:textColorHint="@color/white"
-                    app:boxStrokeColor="@color/box_stroke_selector"
-                    app:hintTextColor="@color/white"
-                    app:boxBackgroundColor="@color/purple_500"
-                    app:endIconMode="custom"
-                    app:endIconDrawable="@drawable/ic_baseline_search_24"
-                    app:endIconTint="@color/white">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/searchInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/white"
-                        android:singleLine="true"
-                        android:imeOptions="actionSearch"/>
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </com.google.android.material.appbar.MaterialToolbar>
-
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/moviesRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <androidx.compose.ui.platform.ComposeView
+      android:id="@+id/composeView"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
 </layout>

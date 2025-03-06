@@ -1,15 +1,18 @@
 package pl.movies.movieslist.ui.movieslist
 
 import pl.movies.domain.nowplaying.NowPlayingMovie
+import pl.movies.movieslist.ui.movieslist.PagingInfo.CanLoadMore
 
-sealed class MoviesListState {
-  data class SuccessState(
-    val noMoreItemsAvailable: Boolean = false,
-    val isReloading: Boolean = false,
-    val movies: List<NowPlayingMovie> = emptyList()
-  ) : MoviesListState()
+data class MoviesListState(
+  val searchText: String = "",
+  val pagingInfo: PagingInfo = CanLoadMore,
+  val isLoading: Boolean = false,
+  val isReloading: Boolean = false,
+  val movies: List<NowPlayingMovie> = emptyList(),
+)
 
-  data class ErrorState(
-    val throwable: Throwable
-  ) : MoviesListState()
+sealed class PagingInfo {
+  data object CanLoadMore : PagingInfo()
+  data object NoMoreItemsAvailable : PagingInfo()
+  data class Error(val throwable: Throwable): PagingInfo()
 }
