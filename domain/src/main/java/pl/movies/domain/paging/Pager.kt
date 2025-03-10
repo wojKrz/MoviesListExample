@@ -3,15 +3,12 @@ package pl.movies.domain.paging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-class Pager<T>(
-  private val getDownloadedPagedData: suspend () -> List<T>,
-  private val clearData: suspend () -> Unit
-) {
+class Pager(private val clearData: suspend () -> Unit) {
 
   private var currentPageIndex = FIRST_PAGE_INDEX
 
-  private val _pagedData = MutableSharedFlow<PagerData<T>>()
-  val pagedData: Flow<PagerData<T>> = _pagedData
+  private val _pagedData = MutableSharedFlow<PagerData>()
+  val pagedData: Flow<PagerData> = _pagedData
 
   suspend fun getNextPageWith(getNextPage: suspend (Int) -> PageMetadata) {
     val page = try {
@@ -19,12 +16,10 @@ class Pager<T>(
 
       currentPageIndex++
       PagerData(
-        result = getDownloadedPagedData(),
         noMoreItemsAvailable = currentPageIndex > newPage.totalPages
       )
     } catch (e: Throwable) {
       PagerData(
-        result = getDownloadedPagedData(),
         error = e
       )
     }

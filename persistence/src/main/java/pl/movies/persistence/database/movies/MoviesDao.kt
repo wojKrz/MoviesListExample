@@ -1,30 +1,25 @@
 package pl.movies.persistence.database.movies
 
-import androidx.room.*
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.core.Single
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 import pl.movies.persistence.database.favorites.MoviesWithFavoriteStatusView
 
 @Dao
 abstract class MoviesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insert(entities: List<MovieEntity>): Unit
+    abstract suspend fun insert(entities: List<MovieEntity>)
 
     @Query(
         value = """
             SELECT * FROM movies_with_favorite_status_view
         """
     )
-    abstract fun observeAllJoinedWithFavStatus(): Flowable<List<MoviesWithFavoriteStatusView>>
-
-    @Query(
-        value = """
-            SELECT * FROM movies_with_favorite_status_view
-        """
-    )
-    abstract suspend fun getAllJoinedWithFavStatus(): List<MoviesWithFavoriteStatusView>
+    abstract fun observeAllJoinedWithFavStatus(): Flow<List<MoviesWithFavoriteStatusView>>
 
     @Transaction
     @Query(

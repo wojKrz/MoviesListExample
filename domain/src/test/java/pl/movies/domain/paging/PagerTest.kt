@@ -15,7 +15,7 @@ class PagerTest {
 
   val getNextPage = mockk<suspend (Int) -> PageMetadata>()
   val repository = mockk<MockPageResultsRepository>()
-  val sut = Pager(repository::getLatestPagedData, repository::clearPageData)
+  val sut = Pager(repository::clearPageData)
 
   @Before
   fun before() {
@@ -24,11 +24,9 @@ class PagerTest {
 
   @Test
   fun `When next page is fetched successfully then data is emitted`() = runTest {
-    val data = listOf(1, 2, 3, 4, 5)
     coEvery { getNextPage(any()) } returns PageMetadata(1, 2)
-    coEvery { repository.getLatestPagedData() } returns data
 
-    val pageResult = PagerData(data)
+    val pageResult = PagerData()
     sut.pagedData.test {
       sut.getNextPageWith(getNextPage)
 
@@ -39,9 +37,7 @@ class PagerTest {
   @Test
   fun `When next page is fetched successfully then next page is fetched with incremented page number`() =
     runTest {
-      val data = listOf(1, 2, 3, 4, 5)
       coEvery { getNextPage(any()) } returns PageMetadata(1, 2)
-      coEvery { repository.getLatestPagedData() } returns data
 
       sut.getNextPageWith(getNextPage)
       coVerify { getNextPage(1) }
@@ -52,11 +48,9 @@ class PagerTest {
 
   @Test
   fun `When there are no more items to fetch then result indicates end of list`() = runTest {
-    val data = listOf(1, 2, 3, 4, 5)
     coEvery { getNextPage(any()) } returns PageMetadata(1, 1)
-    coEvery { repository.getLatestPagedData() } returns data
 
-    val pageResult = PagerData(data, noMoreItemsAvailable = true)
+    val pageResult = PagerData(noMoreItemsAvailable = true)
     sut.pagedData.test {
       sut.getNextPageWith(getNextPage)
 
@@ -68,11 +62,9 @@ class PagerTest {
   fun `When error occurs during page fetch then result contains last data and error info`() =
     runTest {
       val error = Throwable("Paging error")
-      val data = listOf(1, 2, 3, 4, 5)
       coEvery { getNextPage(any()) } throws error
-      coEvery { repository.getLatestPagedData() } returns data
 
-      val pageResult = PagerData(data, error = error)
+      val pageResult = PagerData(error = error)
       sut.pagedData.test {
         sut.getNextPageWith(getNextPage)
 
@@ -84,9 +76,7 @@ class PagerTest {
   fun `When error occurs during page fetch then next fetch attempt uses the same page number`() =
     runTest {
       val error = Throwable("Paging error")
-      val data = listOf(1, 2, 3, 4, 5)
       coEvery { getNextPage(any()) } throws error
-      coEvery { repository.getLatestPagedData() } returns data
 
       sut.getNextPageWith(getNextPage)
       coVerify { getNextPage(1) }
@@ -97,9 +87,7 @@ class PagerTest {
 
   @Test
   fun `When pager is restarted then next page is loaded with first page index`() = runTest {
-    val data = listOf(1, 2, 3, 4, 5)
     coEvery { getNextPage(any()) } returns PageMetadata(1, 2)
-    coEvery { repository.getLatestPagedData() } returns data
 
     sut.pagedData.test {
       sut.getNextPageWith(getNextPage)
@@ -115,9 +103,7 @@ class PagerTest {
 
   @Test
   fun `When pager is restarted then page data is cleared`() = runTest {
-    val data = listOf(1, 2, 3, 4, 5)
     coEvery { getNextPage(any()) } returns PageMetadata(1, 2)
-    coEvery { repository.getLatestPagedData() } returns data
 
     sut.pagedData.test {
       sut.restart()

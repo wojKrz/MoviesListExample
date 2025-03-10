@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import pl.movies.domain.favorite.ToggleFavoriteMovieStatusUsecase
-import pl.movies.domain.nowplaying.MovieWithFavoriteStatus
 import pl.movies.domain.nowplaying.Repository
 import pl.movies.domain.paging.PageMetadata
 import pl.movies.domain.paging.Pager
@@ -28,7 +27,7 @@ import javax.inject.Inject
 class MoviesListViewModel @Inject constructor(
   private val repository: Repository,
   private val toggleFavoriteMovieStatusUsecase: ToggleFavoriteMovieStatusUsecase,
-  private val pager: Pager<MovieWithFavoriteStatus>
+  private val pager: Pager
 ) : ViewModel() {
 
   private val disposables: CompositeDisposable = CompositeDisposable()
@@ -89,20 +88,23 @@ class MoviesListViewModel @Inject constructor(
 
   fun startObservingData() {
     viewModelScope.launch {
-      pager.pagedData
+      combine(pager.pagedData, repository.observeAllMovies())
+      { pagerData, movieWithFavoriteStatuses ->
+        MoviesNowPlayingPageState(
+          items = movieWithFavoriteStatuses,
+          error = pagerData.error,
+          noMoreItemsAvailable = pagerData.noMoreItemsAvailable
+        )
+      }
         .collect {
-          moviesListState.value = MoviesNowPlayingPageState(
-            items = it.result,
-            error = it.error,
-            noMoreItemsAvailable = it.noMoreItemsAvailable
-          )
+          moviesListState.value = it
         }
     }
   }
 
   private fun searchMovies(nameQuery: String) {
-      searchState.value = nameQuery
-      refreshData()
+    searchState.value = nameQuery
+    refreshData()
   }
 
   private fun toggleMovieFavoriteStatus(movieId: Long) {

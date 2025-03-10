@@ -1,5 +1,7 @@
 package pl.movies.domain.nowplaying
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import pl.movies.domain.paging.PageMetadata
 import pl.movies.domain.paging.PageDataMapper
 import pl.movies.network.api.movies.MoviesApi
@@ -13,9 +15,9 @@ class Repository @Inject constructor(
   private val mapper: MoviesMapper,
   private val pageMapper: PageDataMapper<MovieDto>
 ) {
-  suspend fun getAllMovies(): List<MovieWithFavoriteStatus> =
-    moviesDao.getAllJoinedWithFavStatus()
-      .run(mapper::mapPersistenceToDomain)
+  fun observeAllMovies(): Flow<List<MovieWithFavoriteStatus>> =
+    moviesDao.observeAllJoinedWithFavStatus()
+      .map(mapper::mapPersistenceToDomain)
 
   suspend fun loadNextMoviesPage(pageNo: Int): PageMetadata {
     val page = moviesApi.getNowPlayingMovies(pageNo)
