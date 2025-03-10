@@ -32,13 +32,13 @@ import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.request.ImageRequest
-import pl.movies.domain.nowplaying.NowPlayingMovie
+import pl.movies.domain.nowplaying.MovieWithFavoriteStatus
 import pl.movies.movieslist.R
 import pl.movies.movieslist.ui.movieslist.MoviesListIntent.ToggleMovieFavoriteStatus
 import pl.movies.movieslist.util.withAppendedBaseUrl
 
 @Composable
-fun MovieItem(movie: NowPlayingMovie, onIntent: (MoviesListIntent) -> Unit) {
+fun MovieItem(movie: MovieWithFavoriteStatus, onIntent: (MoviesListIntent) -> Unit) {
   Card(
     Modifier
       .height(330.dp)
@@ -98,7 +98,7 @@ val previewHandler = AsyncImagePreviewHandler {
 fun MovieItem_Preview() {
   CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
     MovieItem(
-      NowPlayingMovie(
+      MovieWithFavoriteStatus(
         id = 1L,
         posterPath = "/poster",
         adult = false,

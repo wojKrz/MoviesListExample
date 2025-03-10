@@ -30,13 +30,13 @@ android {
 }
 
 dependencies {
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     implementation libs.hiltAndroid
-    kapt(libs.dagger.hilt.compiler)
-    api("androidx.room:room-runtime:$room_version")
-    annotationProcessor "androidx.room:room-compiler:$room_version"
-    kapt("androidx.room:room-compiler:$room_version")
-    api "androidx.room:room-rxjava3:$room_version"
+    kapt libs.dagger.hilt.compiler
+
+    implementation(libs.androidx.room.runtime)
+    implementation libs.androidx.room.ktx
+    kapt libs.androidx.room.compiler
+    api libs.androidx.room.rxjava3
 }

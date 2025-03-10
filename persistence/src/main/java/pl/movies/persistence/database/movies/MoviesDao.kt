@@ -10,7 +10,7 @@ import pl.movies.persistence.database.favorites.MoviesWithFavoriteStatusView
 abstract class MoviesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insert(entities: List<MovieEntity>): Completable
+    abstract suspend fun insert(entities: List<MovieEntity>): Unit
 
     @Query(
         value = """
@@ -19,12 +19,19 @@ abstract class MoviesDao {
     )
     abstract fun observeAllJoinedWithFavStatus(): Flowable<List<MoviesWithFavoriteStatusView>>
 
+    @Query(
+        value = """
+            SELECT * FROM movies_with_favorite_status_view
+        """
+    )
+    abstract suspend fun getAllJoinedWithFavStatus(): List<MoviesWithFavoriteStatusView>
+
     @Transaction
     @Query(
         value = """
         DELETE FROM movies
     """
     )
-    abstract fun clearAll(): Completable
+    abstract suspend fun clearAll()
 
 }

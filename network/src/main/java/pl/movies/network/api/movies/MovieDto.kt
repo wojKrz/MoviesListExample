@@ -2,7 +2,7 @@ package pl.movies.network.api.movies
 
 import com.google.gson.annotations.SerializedName
 
-data class NowPlayingMovieDto(
+data class MovieDto(
 
     @SerializedName("id")
     var id: Long,

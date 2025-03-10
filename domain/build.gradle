@@ -36,7 +36,12 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     implementation libs.hiltAndroid
-    kapt(libs.dagger.hilt.compiler)
+    kapt libs.dagger.hilt.compiler
 
     implementation "io.reactivex.rxjava3:rxjava:3.0.12"
+
+    testImplementation libs.junit
+    testImplementation libs.mockk
+    testImplementation libs.kotlinx.coroutines.test
+    testImplementation libs.turbine
 }

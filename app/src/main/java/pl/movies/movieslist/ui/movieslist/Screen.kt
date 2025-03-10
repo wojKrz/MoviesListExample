@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import pl.movies.domain.nowplaying.NowPlayingMovie
+import pl.movies.domain.nowplaying.MovieWithFavoriteStatus
 import pl.movies.movieslist.R
 import pl.movies.movieslist.ui.movieslist.PagingInfo.CanLoadMore
 import pl.movies.movieslist.ui.movieslist.PagingInfo.Error
@@ -42,11 +42,9 @@ fun MoviesSearchLayout(
     ) { searchValue -> onIntent.invoke(MoviesListIntent.NewSearchQuery(searchValue)) }
     val listState = rememberLazyGridState()
 
-    if (state.isLoading.not()) {
-      LaunchedEffect(listState.canScrollForward) {
-        if (listState.canScrollForward.not()) {
-          onIntent.invoke(MoviesListIntent.LoadNextPage)
-        }
+    LaunchedEffect(listState.canScrollForward) {
+      if (listState.canScrollForward.not()) {
+        onIntent.invoke(MoviesListIntent.LoadNextPage)
       }
     }
 
@@ -117,42 +115,41 @@ fun Preview_Screen() {
     MoviesListState(
       searchText = "Lorem",
       pagingInfo = CanLoadMore,
-      isReloading = false,
       movies = mockMovies
     ),
   ) {}
 }
 
 val mockMovies = listOf(
-  NowPlayingMovie(
+  MovieWithFavoriteStatus(
     id = 1,
     posterPath = "/path",
     adult = false,
     originalTitle = "Title1",
     isFavorite = false
   ),
-  NowPlayingMovie(
+  MovieWithFavoriteStatus(
     id = 2,
     posterPath = "/path",
     adult = true,
     originalTitle = "Title2",
     isFavorite = false
   ),
-  NowPlayingMovie(
+  MovieWithFavoriteStatus(
     id = 3,
     posterPath = "/path",
     adult = false,
     originalTitle = "Title3",
     isFavorite = true
   ),
-  NowPlayingMovie(
+  MovieWithFavoriteStatus(
     id = 4,
     posterPath = "/path",
     adult = false,
     originalTitle = "Title4",
     isFavorite = false
   ),
-  NowPlayingMovie(
+  MovieWithFavoriteStatus(
     id = 5,
     posterPath = "/path",
     adult = false,

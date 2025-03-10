@@ -9,17 +9,17 @@ import retrofit2.http.Query
 interface MoviesApi {
 
     @GET("movie/now_playing")
-    fun getNowPlayingMovies(
+    suspend fun getNowPlayingMovies(
         @Query("page") page: Int,
         @Query("api_key") apiKey: String = "e7213390e5734343d99dc18cba092dc8"
-    ): Single<PageDto<NowPlayingMovieDto>>
+    ): PageDto<MovieDto>
 
     @GET("search/movie")
-    fun findMoviesByName(
+    suspend fun findMoviesByName(
         @Query("query") query: String,
         @Query("page") page: Int,
         @Query("api_key") apiKey: String = "e7213390e5734343d99dc18cba092dc8"
-    ): Single<PageDto<NowPlayingMovieDto>>
+    ): PageDto<MovieDto>
 
     @GET("movie/{id}")
     fun getMovieDetails(
