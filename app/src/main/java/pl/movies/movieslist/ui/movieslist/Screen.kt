@@ -4,13 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,7 +59,9 @@ fun MoviesSearchLayout(
       items(state.movies) { movie ->
         MovieItem(movie, onIntent)
       }
-      item {
+      item(
+        span = { GridItemSpan(2) }
+      ) {
         when (state.pagingInfo) {
           is Error -> ErrorItem(state.pagingInfo.throwable, onIntent)
           NoMoreItemsAvailable -> NoMorePagesItem { onIntent.invoke(MoviesListIntent.RefreshData) }
@@ -102,9 +108,16 @@ fun NetworkErrorItem(onIntent: (MoviesListIntent) -> Unit) {
 @Composable
 fun SearchBar(searchText: String, onNewSearchValue: (String) -> Unit) {
   TextField(
-    modifier = Modifier.fillMaxWidth(),
     value = searchText,
     onValueChange = onNewSearchValue,
+    modifier = Modifier.fillMaxWidth(),
+    label = { Text(stringResource(R.string.search)) },
+    leadingIcon = {
+      Icon(
+        painter = painterResource(R.drawable.ic_baseline_search_24),
+        contentDescription = null
+      )
+    },
   )
 }
 
